@@ -1,0 +1,15 @@
+[project]
+name = "marclinkfinc"
+version = "0.1.0"
+description = "Demo Projekt für MarcLinkFinc"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "marimo>=0.10.14",
+    "pymarc>=5.2.3",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.9.2",
+]

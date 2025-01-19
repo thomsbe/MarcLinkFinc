@@ -1,0 +1,21 @@
+{
+    "name": "Python 3 + uv",
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+    "features": {
+        "ghcr.io/devcontainers/features/python:1": {}
+    },
+    "postCreateCommand": "pip3 install --user -r requirements.txt",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "marimo-team.vscode-marimo",
+                "charliermarsh.ruff",
+                "ms-pyright.pyright"
+            ]
+        }
+    }
+}
