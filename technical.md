@@ -1,7 +1,7 @@
 # Technische Entscheidungen
 
 ## Bibliotheken
-- Python 3.13 als Basis
+- Python 3.12 als Basis
 - pymarc für Marc21 Verarbeitung
 - marimo für die interaktive Notebook-Umgebung
 - pydantic für Datenvalidierung
