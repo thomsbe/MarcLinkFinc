@@ -1,0 +1,54 @@
+id: https://www.slub-dresden.de/linkml/finc
+name: finc
+
+prefixes:
+  finc: https://www.slub-dresden.de/linkml/finc
+
+default_prefix:
+
+classes:
+  Finc:
+    attributes:
+      id:
+        identifier: true
+        range: string
+        required: true
+      record_id:
+        range: string
+        required: true
+      title:
+        range: string
+        required: true
+      topics:
+        range: string
+        required: false
+        multivalued: true
+      author:
+        range: string
+        required: false
+        multivalued: true
+      author2:
+        range: string
+        required: false
+        multivalued: true
+      author_corporate:
+        range: string
+        required: false
+        multivalued: true
+      author_role:
+        range: string
+        required: false
+        multivalued: true
+      author_corporate_role:
+        range: string
+        required: false
+        multivalued: true
+      author_sort:
+        range: string
+        required: false
+        multivalued: false
+      isbn:
+        range: string
+        required: false
+        multivalued: false
+      
