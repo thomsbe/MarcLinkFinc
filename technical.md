@@ -11,7 +11,10 @@
 - Verwendung von `uv` als Paketmanager
 - Installation als editierbares Paket (`pip install -e .`)
 - Schema-Definitionen in `schema/*.yaml`
-- Beispiel-Marc21-Record in `marc_example.py`
+- Marimo Notebooks in `notebooks/`:
+  1. `01_marc21_to_json.py`: Marc21 Import und JSON Konvertierung
+  2. `02_linkml_schema.py`: LinkML Schema und Pydantic Klassen
+  3. `03_json_to_pydantic.py`: Validierung und Konvertierung
 
 ## Datenfluss
 1. Einlesen der Marc21 Daten mit pymarc
@@ -32,8 +35,11 @@
 - Verwendung von `linkml-data-model` für die Generierung der Pydantic-Klassen
 - Befehl: `linkml-data-model --output-formats pydantic schema/book.yaml > models.py`
 
-## Offene Punkte
-- Integration der generierten Pydantic-Modelle
-- Implementierung der Marc21-zu-Pydantic Transformation
-- Entwicklung der Marimo-Notebook-Oberfläche
-- Erweiterung des Schemas um weitere Marc21-Felder
+## Implementierungsstatus
+- [x] Grundlegende Projektstruktur
+- [x] LinkML Schema Definition
+- [x] Marimo Notebooks erstellt
+- [ ] Marc21 Beispieldaten integriert
+- [ ] Vollständige Validierung implementiert
+- [ ] UI/UX Optimierung
+- [ ] Dokumentation vervollständigt

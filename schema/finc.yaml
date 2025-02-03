@@ -3,52 +3,91 @@ name: finc
 
 prefixes:
   finc: https://www.slub-dresden.de/linkml/finc
+  linkml: https://w3id.org/linkml/
+
+imports:
+  - linkml:types
 
 default_prefix:
 
 classes:
   Finc:
+    description: >-
+      Ein Datensatz für den Solr-Index
     attributes:
       id:
         identifier: true
         range: string
         required: true
+        description: >-
+          ID innerhalb eines Solr, zusammengesetzt aus einem Prefix mit der source_id und der record_id (teilweise encodiert)
       record_id:
-        range: string
+        range: string 
         required: true
+        description: 
+          Lieferanten-Identifier (original ID aus der Quelle)
+        annotations:
+          source_marc: >-
+            001
       title:
         range: string
         required: true
-      topics:
+        description: >-
+          Titel im Titeldatensatz
+      topic:
         range: string
         required: false
         multivalued: true
+        description: >-
+          Schlagwörter
       author:
         range: string
         required: false
         multivalued: true
+        description: >-
+          nur Hauptautoren, als Liste, die die gleiche Reihenfolge wie die Werte in author_role haben müssen
       author2:
         range: string
         required: false
         multivalued: true
+        description: >-
+          weitere Autorennamen(Nebenautoren bzw. Autoren mit Nebeneintragungen), als Liste, die die gleiche Reihenfolge wie die Werte in author2_role haben müssen
       author_corporate:
         range: string
         required: false
         multivalued: true
+        description: >-
+          Körperschaft und Event als Autor
       author_role:
         range: string
         required: false
         multivalued: true
+        description: |-
+          Rollen der Hauptautoren der Veröffentlichung
+          Müssen in der gleichen Reihenfolge wie die Werte in author haben
+          Keine Angabe=leer, damit Anzahl Autoren=Anzahl Rollen
+      author2_role:
+        range: string
+        required: false
+        multivalued: true
+        description: >-
+          Rollen der weiteren Autoren
       author_corporate_role:
         range: string
         required: false
         multivalued: true
+        description: >-
+          Rollen der Körperschaften und Events
       author_sort:
         range: string
         required: false
         multivalued: false
+        description: >-
+          1. Autorenname für Sortierung in Ergebnisliste
       isbn:
         range: string
         required: false
         multivalued: false
-      
+        description: >-
+          Internationale Standardbuchnummer (International Standard Book Number, ISBN)
+        pattern: "^(?:ISBN(?:-1[03])?:? )?(?=[0-9X]{10}$|(?=(?:[0-9]+[- ]){3})[- 0-9X]{13}$|97[89][0-9]{10}$|(?=(?:[0-9]+[- ]){4})[- 0-9]{17}$)(?:97[89][- ]?)?[0-9]{1,5}[- ]?[0-9]+[- ]?[0-9]+[- ]?[0-9X]$"
