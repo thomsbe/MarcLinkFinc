@@ -5,41 +5,37 @@
 - pymarc für Marc21 Verarbeitung
 - marimo für die interaktive Notebook-Umgebung
 - pydantic für Datenvalidierung
-- linkml für Schemamodellierung
+- linkml für Schemamodellierung und Generierung der Modelle
 
 ## Projektstruktur
 - Verwendung von `uv` als Paketmanager
-- Installation als editierbares Paket (`pip install -e .`)
-- Schema-Definitionen in `schema/*.yaml`
-- Marimo Notebooks in `notebooks/`:
-  1. `01_marc21_to_json.py`: Marc21 Import und JSON Konvertierung
-  2. `02_linkml_schema.py`: LinkML Schema und Pydantic Klassen
-  3. `03_json_to_pydantic.py`: Validierung und Konvertierung
+- Schema-Definition in `schema/finc.yaml`
+- Generierte Modelle in `models/`:
+  - `pydantic.py`: Generierte Pydantic-Klassen
+  - `dataclass.py`: Generierte Dataclasses
+- Marimo Notebook in `notebook.py`
 
 ## Datenfluss
-1. Einlesen der Marc21 Daten mit pymarc
-2. Visualisierung der Rohdaten
-3. Transformation in Pydantic-Modelle
-4. Validierung durch LinkML-Schema
+1. Einlesen oder Erstellen eines Marc21 Records
+2. Visualisierung der Marc21 Daten
+3. Umwandlung in JSON
+4. Validierung und Mapping in Pydantic/Dataclass Modelle
+5. Ausgabe als JSON
 
 ## Schema-Design (LinkML)
-- Basis-Schema für Buchmetadaten in `schema/book.yaml`
-- Mapping von Marc21-Feldern:
-  - 245$a → title (Pflichtfeld)
-  - 245$b → subtitle (Optional)
-  - 100$a → author (Pflichtfeld, Format: "Nachname, Vorname")
-  - 100$d → author_dates (Optional)
-  - 020$a → isbn (Pflichtfeld, ISBN-13 Format)
-
-## Generierung der Modelle
-- Verwendung von `linkml-data-model` für die Generierung der Pydantic-Klassen
-- Befehl: `linkml-data-model --output-formats pydantic schema/book.yaml > models.py`
+- Basis-Schema in `schema/finc.yaml`
+- Fokus auf grundlegende Felder für den Showcase
+- Validierungsregeln für Datenfelder
 
 ## Implementierungsstatus
-- [x] Grundlegende Projektstruktur
-- [x] LinkML Schema Definition
-- [x] Marimo Notebooks erstellt
-- [ ] Marc21 Beispieldaten integriert
-- [ ] Vollständige Validierung implementiert
-- [ ] UI/UX Optimierung
-- [ ] Dokumentation vervollständigt
+- [ ] Grundlegende Projektstruktur
+- [ ] LinkML Schema Definition
+- [ ] Marc21 Beispieldaten
+- [ ] Marimo Notebook
+- [ ] Dokumentation
+
+## Nächste Schritte
+1. Erstellung des LinkML Schemas
+2. Generierung der Modelle
+3. Entwicklung des Marimo Notebooks
+4. Dokumentation der Beispiele
