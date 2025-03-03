@@ -8,8 +8,9 @@ Diese Datei enthält Hilfsfunktionen zur effizienten Verarbeitung von Marc21-Dat
 insbesondere für die Extraktion von Feldern und Subfeldern nach spezifischen Kriterien.
 """
 
+import logging
 from typing import List, Optional, Tuple
-from help.logging import getSlubLogger
+from help.slublogging import getSlubLogger
 
 class MarcUtils:
     """
@@ -22,6 +23,7 @@ class MarcUtils:
     
     # Logger auf Klassenebene initialisieren
     log = getSlubLogger('help.marc_utils')
+    log.setLevel(logging.INFO)
     
     @staticmethod
     def parse_marc_field_spec(spec: str) -> Tuple[Optional[str], Optional[str]]:

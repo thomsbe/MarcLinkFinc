@@ -16,15 +16,16 @@
   - `pydantic.py`: Generierte Pydantic-Klassen
   - `dataclass.py`: Generierte Dataclasses
 - Marimo Notebook in `notebook.py`
-- Zentrale Logging-Konfiguration in `help/logging.py`
+- Zentrale Logging-Konfiguration in `help/slublogging.py`
 
 ## Logging-Konfiguration
-- Zentraler Logger über `getSlubLogger()`
+- Zentraler Logger über `getSlubLogger()` aus dem Modul `help.slublogging`
 - Konfiguration via TOML-Datei oder eingebetteter Standard-Konfiguration
 - Zwei Handler:
   - Console-Handler (INFO-Level)
   - File-Handler (DEBUG-Level)
 - Standardisiertes Logging-Format mit Zeitstempel, Logger-Name, Level und Nachricht
+- Vermeidung von Namenskonflikten mit dem Standardmodul `logging`
 
 ## Datenfluss
 1. Einlesen oder Erstellen eines Marc21 Records
@@ -38,6 +39,11 @@
 ## Ausgabeformat
 - Verwendung von JsonL (JSON Lines) für die Ausgabe
 - Ein JSON-Objekt pro Zeile ohne umschließendes Array
+- Bereinigung von leeren Werten:
+  - Null-Werte (None) werden aus der Ausgabe entfernt
+  - Leere Arrays werden nicht ausgegeben
+  - Unbelegte optionale Felder erscheinen nicht im JSON
+- Validierungsprüfung für required-Felder bleibt erhalten
 - Einfache Weiterverarbeitung in Big-Data-Anwendungen
 - Getrennte Dateien für Pydantic- und Dataclass-Modelle
 - Dateinamen werden vom Basis-Zielpfad abgeleitet

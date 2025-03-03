@@ -8,7 +8,7 @@ from pathlib import Path
 from slubmodels.pydantic import Finc as PydanticFinc  # Pydantic-Modell zur Validierung und JSON-Ausgabe
 from slubmodels.dataclass import Finc as DataclassFinc  # Dataclass-Modell für alternative Zwecke
 from help.marc_utils import MarcUtils
-from help.logging import getSlubLogger
+from help.slublogging import getSlubLogger
 
 def process_marc_files(sourcefile, targetfile=None):
     """
@@ -21,7 +21,7 @@ def process_marc_files(sourcefile, targetfile=None):
     Returns:
         Tuple aus (PydanticFinc-Liste, DataclassFinc-Liste)
     """
-    log = getSlubLogger(__name__)
+    log = getSlubLogger('marc2finc')
     log.info(f"Verarbeite Datei: {sourcefile}")
     
     pydantics = []
@@ -32,7 +32,7 @@ def process_marc_files(sourcefile, targetfile=None):
         
         # PPN und Titel ausgeben zur Kontrolle
         for record in reader:
-            log.info(f"PPN: {record['001']} - Titel: {record['245']['a']}")
+            log.info(f"PPN: {record['001'].data} - Titel: {record['245']['a']}")
 
             # PPN als ID verwenden
             id = f"0-{record['001'].data}"
@@ -51,28 +51,49 @@ def process_marc_files(sourcefile, targetfile=None):
             log.debug(f"Verarbeite {len(topic_specs)} Themen-Feldspezifikationen")
             topics = MarcUtils.extract_marc_subfields(record, *topic_specs)
             log.debug(f"Extrahierte {len(topics)} Themen aus dem Record")
-            
+
+            # DEMO: recordtype ist Pflichtfeld und soll String sein! Kann man hier Zahl oder irgendwas eintragen und es erscheint ein ValidationError
+            recordtype = "marc"
+
+            # isbn = 020a:772z:773z
+            complex_isbn_spec = "020a:772z:773z"
+            isbn_specs = MarcUtils.parse_complex_field_spec(complex_isbn_spec)
+            isbn = MarcUtils.extract_marc_subfields(record, *isbn_specs)
+
+            # isbn liefert eine Liste, ist aber nicht Multi-Valued
+            if isbn and isinstance(isbn, list) and len(isbn) == 1:
+                isbn = isbn[0]
+            else:
+                isbn = None
+
+            # DEMO: ISBN die nicht auf den RegEx passt
+            isbn = "DIESDAS112"
+
             try:
                 pydantic_record = PydanticFinc(
                     id=id,
                     record_id=record_id,
                     title=title,
-                    topic=topics
+                    topic=topics,
+                    recordtype=recordtype,
+                    isbn=isbn
                 )
                 pydantics.append(pydantic_record)
             except Exception as e:
-                log.error(f"Fehler beim Erstellen des PydanticFinc Objekts: {e}")
+                log.error(f"Pydantic: Fehler beim Erstellen des PydanticFinc Objekts: {e}")
 
             try:
                 dataclass_record = DataclassFinc(
                     id=id,
                     record_id=record_id,
                     title=title,
-                    topic=topics
+                    topic=topics,
+                    recordtype=recordtype,
+                    isbn=isbn
                 )
                 dataclasses.append(dataclass_record)
             except Exception as e:
-                log.error(f"Fehler beim Erstellen des Dataclass Finc Objekts: {e}")
+                log.error(f"Dataclass: Fehler beim Erstellen des Dataclass Finc Objekts: {e}")
 
     # Anschließende Ausgabe oder Verarbeitung der erstellten Objekte, z.B. als JSON speichern
     if targetfile:
@@ -95,12 +116,19 @@ def process_marc_files(sourcefile, targetfile=None):
             # Speichere Pydantic-Modelle im JsonL-Format (ein JSON pro Zeile)
             with open(pydantic_file, 'w', encoding='utf-8') as f:
                 for model in pydantics:
-                    f.write(json.dumps(model.model_dump(), ensure_ascii=False) + '\n')
+                    # exclude_none=True entfernt alle None-Werte und exclude_unset=True entfernt ungesetzte Felder
+                    model_dict = model.model_dump(exclude_none=True, exclude_defaults=True)
+                    # Zusätzlich leere Listen entfernen
+                    cleaned_dict = {k: v for k, v in model_dict.items() if not (isinstance(v, list) and len(v) == 0)}
+                    f.write(json.dumps(cleaned_dict, ensure_ascii=False) + '\n')
             
             # Speichere Dataclass-Modelle im JsonL-Format (ein JSON pro Zeile)
             with open(dataclass_file, 'w', encoding='utf-8') as f:
                 for model in dataclasses:
-                    f.write(json.dumps(model.__dict__, ensure_ascii=False) + '\n')
+                    # Konvertiere Dataclass in Dict und entferne None-Werte und leere Listen
+                    model_dict = model.__dict__.copy()
+                    cleaned_dict = {k: v for k, v in model_dict.items() if v is not None and not (isinstance(v, list) and len(v) == 0)}
+                    f.write(json.dumps(cleaned_dict, ensure_ascii=False) + '\n')
             
             log.info(f"Ergebnisse erfolgreich gespeichert: {len(pydantics)} Pydantic-Modelle, {len(dataclasses)} Dataclass-Modelle")
         except Exception as e:

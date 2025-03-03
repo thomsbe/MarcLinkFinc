@@ -96,4 +96,4 @@ def getSlubLogger(name: str = __name__, config_file: Optional[Path] = None) -> l
             logger.addHandler(handler)
         logger.setLevel(logging.INFO)
         logger.warning(f"Fehler beim Konfigurieren des Loggers: {str(e)}. Verwende Basic-Konfiguration.")
-    return logger
+    return logger 
