@@ -94,13 +94,22 @@ MarcLinkFinc/
 │   └── finc.yaml            # Haupt-Schema
 ├── marc2finc.py             # Hauptprogramm
 ├── notebook.py              # Marimo-Notebook
-├── technical.md             # Technische Dokumentation
-└── user.md                  # Benutzervisualisierungen
+├── [technical.md](technical.md)             # Technische Dokumentation
+└── [user.md](user.md)                  # Benutzervisualisierungen
 ```
 
 ## Visualisierungen
 
-Diagramme und Visualisierungen des Datenflusses sind in der `user.md`-Datei verfügbar, die den gesamten Prozess von der Schema-Definition bis zur JSON-Generierung darstellt.
+Diagramme und Visualisierungen des Datenflusses sind in der [user.md](user.md)-Datei verfügbar, die den gesamten Prozess von der Schema-Definition bis zur JSON-Generierung darstellt.
+
+## Dokumentation
+
+Das Projekt enthält zwei primäre Dokumentationsdateien:
+
+- [user.md](user.md) - Enthält Mermaid-Diagramme und visuelle Darstellungen des Datenflusses für Endbenutzer
+- [technical.md](technical.md) - Detaillierte technische Dokumentation über Architekturentscheidungen, Implementierungsdetails und Projektstruktur
+
+Die technische Dokumentation erläutert die verwendeten Bibliotheken, Logging-Konfiguration, Datenfluss und Marc21-Feldextraktion im Detail.
 
 ## Aktueller Entwicklungsstand
 
@@ -115,4 +124,4 @@ Diagramme und Visualisierungen des Datenflusses sind in der `user.md`-Datei verf
 
 ## Lizenz
 
-Dieses Projekt steht unter der MIT-Lizenz. Siehe die LICENSE-Datei für Details.
+Dieses Projekt steht unter der [MIT-Lizenz](LICENSE). Siehe die LICENSE-Datei für Details.
