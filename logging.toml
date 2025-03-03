@@ -1,0 +1,18 @@
+version = 1
+disable_existing_loggers = false
+
+[root]
+level = "DEBUG"
+handlers = ["console"]
+
+[handlers]
+[handlers.console]
+class = "logging.StreamHandler"
+formatter = "standard"
+level = "DEBUG"
+stream = "ext://sys.stdout"
+
+[formatters]
+[formatters.standard]
+format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+datefmt = "%Y-%m-%d %H:%M:%S" 

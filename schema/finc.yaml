@@ -29,6 +29,8 @@ classes:
         annotations:
           source_marc: >-
             001
+          function:
+            "get_id"
       title:
         range: string
         required: true

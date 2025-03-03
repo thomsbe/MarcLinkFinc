@@ -1,0 +1,10 @@
+---
+description: Python Rules
+globs: *.py
+---
+## Python-Specific
+
+- Use "uv" for dependency management
+- Use Python 3.12 as base
+- Use Logging-Framework
+- Use a modern approach for loggin with a toml-config-file and named loggers, not the classic getLogger(__name__) way
