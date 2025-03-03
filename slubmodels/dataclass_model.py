@@ -1,5 +1,5 @@
 # Auto generated from finc.yaml by pythongen.py version: 0.0.1
-# Generation date: 2025-03-03T11:04:05
+# Generation date: 2025-03-03T11:32:04
 # Schema: finc
 #
 # id: https://www.slub-dresden.de/linkml/finc

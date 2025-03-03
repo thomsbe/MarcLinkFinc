@@ -47,8 +47,9 @@ def process_marc_files(sourcefile, targetfile=None, models=None):
             record_id = record['001'].data
 
             # title = 245ab, clean, join(": "), first
-            titles = MarcUtils.extract_marc_subfields(record, "245ab")
-            title = ": ".join(titles)
+            titles = MarcUtils.extract_marc_subfields(record, "245ab", join=": ")
+            # Nur ein Titel sollte verwendet werden, wenn mehrere vorhanden sind (ungewöhnlich)
+            title = titles[0] if titles else ""
             
             # topic = 600abcdefghjklmnopqrstuvxyz:610abcdefghklmnoprstuvxyz:611acdefghjklnpqstuvxyz:630adefghklmnoprstvxyz:650abcdevxyz:689agxz:655abvxyz:651avxyz:648avxyz:970de:937abc:653a
             complex_topic_spec = "600abcdefghjklmnopqrstuvxyz:610abcdefghklmnoprstuvxyz:611acdefghjklnpqstuvxyz:630adefghklmnoprstvxyz:650abcdevxyz:689agxz:655abvxyz:651avxyz:648avxyz:970de:937abc:653a"

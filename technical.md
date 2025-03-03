@@ -113,17 +113,30 @@
 - Demonstriert unterschiedliche MARC21-Feldtypen und deren Mapping zum LinkML-Schema
 
 ## MARC21 Feldextraktion
-- Implementierung der `MarcUtils`-Klasse in `help/marc_utils.py` mit MARC21-Hilfsfunktionen
-- Statische Methode `extract_marc_subfields` für Datenextraktion nach MARC21-Feldspezifikation (z.B. "600abcdefg")
-- Unterstützung für Multiple-Field-Extraktion mit variablen Subfeldcodes
-- Vorverarbeitung und Bereinigung der extrahierten Daten
-- Automatische Verarbeitung von Topics aus verschiedenen Themenfeldern wie 600, 610, 650 etc.
-- Modularer Aufbau für einfache Wiederverwendung und Erweiterung
-- Umfangreiche Logging-Funktionalität mit Klassenlogger über `getSlubLogger`
-- Zusätzliche Hilfsmethoden:
-  - `parse_marc_field_spec`: Zerlegt MARC-Feldspezifikationen in Feldnummer und Subfeldcodes
-  - `create_marc_field_spec`: Erstellt gültige MARC-Feldspezifikationen aus Komponenten
-  - `parse_complex_field_spec`: Verarbeitet komplexe Spezifikationen mit Trennzeichen (z.B. "600abc:610abc")
+
+Zur effizienten Extraktion von Daten aus MARC21-Datensätzen wurden verschiedene Hilfsfunktionen implementiert:
+
+1. `extract_marc_subfields`: Extrahiert Inhalte aus spezifizierten MARC-Feldern und Subfeldern:
+   - Unterstützt Extraktion mehrerer Felder in einem Aufruf
+   - Parameter `join` ermöglicht die Verkettung von Subfeldern (z.B. Titel + Untertitel)
+   - Parameter `clean` entfernt automatisch führende und abschließende Leerzeichen
+   - Parameter `remove_patterns` erlaubt die Anwendung regulärer Ausdrücke zur Bereinigung der extrahierten Werte:
+     - Entfernung von Klammern und deren Inhalt: `[r'\[.*?\]', r'\(.*?\)']`
+     - Entfernung von Bindestrichen in ISBNs: `[r'-']`
+     - Beliebige andere RegEx-Muster zur Bereinigung von Feldinhalten
+
+2. **Hilfsmetoden zur Datenverarbeitung:**
+   - `clean_field_content`: Bereinigt einen Feldinhalt durch Entfernen von Leerzeichen und/oder Anwenden von RegEx-Mustern
+   - `join_field_values`: Verbindet mehrere Feldwerte mit einem Trennzeichen zu einem String
+   - `compile_regex_patterns`: Kompiliert eine Liste von RegEx-Mustern für effiziente wiederholte Anwendung
+   - `get_marc_field_value`: Vereinfachter Zugriff auf ein einzelnes Subfeld mit Standardwert-Option
+
+3. **Methoden zur MARC-Feldspezifikation:**
+   - `parse_marc_field_spec`: Zerlegt Spezifikationen wie "600abcdefg" in Feldnummer und Subfeldcodes
+   - `create_marc_field_spec`: Erstellt eine gültige Feldspezifikation aus Feldnummer und Subfeldcodes
+   - `parse_complex_field_spec`: Verarbeitet komplexe Spezifikationen mit mehreren Feldern (z.B. "600abc:650xyz")
+
+Diese Funktionen ermöglichen eine präzise und flexible Extraktion von MARC21-Daten, die dann in Pydantic-Modelle oder andere Datenstrukturen übertragen werden können. Die modulare Struktur mit ausgelagerten Hilfsmethoden erlaubt die einfache Erweiterung und Wiederverwendung der Funktionalität.
 
 ## Dynamische Modellgenerierung
 - Direkte Generierung von Pydantic- und Dataclass-Modellen aus dem LinkML-Schema
