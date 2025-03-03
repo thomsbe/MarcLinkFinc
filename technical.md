@@ -12,16 +12,32 @@
 ## Projektstruktur
 - Verwendung von `uv` als Paketmanager
 - Schema-Definition in `schema/finc.yaml`
-- Generierte Modelle in `models/`:
-  - `pydantic.py`: Generierte Pydantic-Klassen
-  - `dataclass.py`: Generierte Dataclasses
+- Permanente Modelle im Ordner `slubmodels`:
+  - Generierte Python-Dataclass-Modelle in `slubmodels/dataclass_model.py`
+  - Generierte Pydantic-Modelle in `slubmodels/pydantic_model.py`
+  - Automatisch aus dem LinkML-Schema generiert
 - Marimo Notebook in `notebook.py`
 - Zentrale Logging-Konfiguration in `help/slublogging.py`
+- Hilfsmodule:
+  - `help/marc_utils.py`: Funktionen zur MARC21-Verarbeitung
+  - `help/slublogging.py`: Zentrale Logging-Konfiguration
+  - `help/linkml_generator.py`: Generierung von LinkML-Modellen
 
 ## Logging-Konfiguration
 - Zentraler Logger über `getSlubLogger()` aus dem Modul `help.slublogging`
-- Konfiguration via TOML-Datei oder eingebetteter Standard-Konfiguration
-- Zwei Handler:
+- Logger-Namenskonvention:
+  - Immer explizite, aussagekräftige Namen verwenden
+  - NICHT `__name__` verwenden
+  - Hierarchisches Benennungsschema bevorzugt: `appname.module.submodule`
+  - Beispiele: `marc2finc`, `help.marc_utils`, `process_marc_files`
+- Konfiguration wird in folgender Reihenfolge geladen:
+  1. Explizit angegebene TOML-Datei (wenn übergeben und vorhanden)
+  2. Standarddatei `logging.toml` im aktuellen Verzeichnis (wenn vorhanden)
+  3. Eingebettete Standard-Konfiguration
+- Log-Level-Strategie:
+  - Standard-Konfiguration: INFO-Level für übersichtliche Konsolenausgabe
+  - DEBUG-Level nur bei expliziter Konfiguration über externe TOML-Dateien
+- Zwei Handler (in expliziter Konfiguration):
   - Console-Handler (INFO-Level)
   - File-Handler (DEBUG-Level)
 - Standardisiertes Logging-Format mit Zeitstempel, Logger-Name, Level und Nachricht
@@ -56,20 +72,45 @@
     - Daraus werden die Pfade für die JsonL-Dateien abgeleitet:
       - `{target_basename}.pydantic.jsonl`
       - `{target_basename}.dataclass.jsonl`
+  - `--schema`: Pfad zum LinkML-Schema (optional, Standard: schema/finc.yaml)
   - Automatische Hilfetexte und Fehlermeldungen
   - Farbige, formatierte Ausgabe im Terminal
 
 ## Schema-Design (LinkML)
-- Basis-Schema in `schema/finc.yaml`
-- Fokus auf grundlegende Felder für den Showcase
-- Validierungsregeln für Datenfelder
+- Basis-Schema in `schema/finc.yaml` implementiert
+- Fokus auf bibliografische Felder für den Finc-Solr-Index:
+  - Eindeutige Identifikatoren (`id`, `record_id`)
+  - Bibliografische Grunddaten (`title`)
+  - Beteiligte Personen/Körperschaften (`author`, `author2`, `author_corporate`)
+  - Rollen der Beteiligten (`author_role`, `author2_role`, `author_corporate_role`)
+  - Thematische Erschließung (`topic`)
+  - Standardidentifikatoren (`isbn`) mit Validierungsmustern für korrekte Formatierung
+  - Medientypen (`recordtype`)
+- LinkML-Features im Einsatz:
+  - Pflichtfelder mit `required: true`
+  - Mehrwertige Felder mit `multivalued: true`
+  - Feldvalidierung via regex-Patterns (z.B. für ISBN)
+  - Umfangreiche Feldbeschreibungen
+  - Annotationen für MARC21-Quellfelder (z.B. `source_marc: "001"`)
+- Erweiterbar für zusätzliche Felder und komplexere Validierungsregeln
 
 ## Implementierungsstatus
-- [ ] Grundlegende Projektstruktur
-- [ ] LinkML Schema Definition
-- [ ] Marc21 Beispieldaten
+- [x] Grundlegende Projektstruktur
+- [x] LinkML Schema Definition (finc.yaml)
+- [x] Dynamische Modellgenerierung aus LinkML-Schema
+- [x] Marc21 Beispieldaten (samples/output.mrc)
 - [ ] Marimo Notebook
 - [ ] Dokumentation
+
+## MARC21 Beispieldaten
+- Demo-Datei `samples/output.mrc` im binären MARC21-Format vorhanden
+- Enthält 13 Beispieldatensätze mit vielfältigen bibliografischen Informationen:
+  - Bücher, Multimedia-Inhalte, wissenschaftliche Publikationen
+  - Verschiedene Sprachen und Formate
+  - Diverse Metadatenfelder (Autoren, Themen, Identifikatoren, etc.)
+- Ideal für Demonstrationszwecke des Konvertierungsprozesses
+- Kann mit `marc2finc.py` verarbeitet werden, um JSONL-Ausgabedateien zu erzeugen
+- Demonstriert unterschiedliche MARC21-Feldtypen und deren Mapping zum LinkML-Schema
 
 ## MARC21 Feldextraktion
 - Implementierung der `MarcUtils`-Klasse in `help/marc_utils.py` mit MARC21-Hilfsfunktionen
@@ -84,8 +125,39 @@
   - `create_marc_field_spec`: Erstellt gültige MARC-Feldspezifikationen aus Komponenten
   - `parse_complex_field_spec`: Verarbeitet komplexe Spezifikationen mit Trennzeichen (z.B. "600abc:610abc")
 
+## Dynamische Modellgenerierung
+- Direkte Generierung von Pydantic- und Dataclass-Modellen aus dem LinkML-Schema
+- Implementiert im Modul `help/linkml_generator.py`:
+  - Zentrale Funktion `generate_models_from_schema()` übernimmt die gesamte Generierung
+  - Saubere Trennung der Funktionalität von der Hauptanwendungslogik
+- Permanente Speicherung der generierten Modelle im `slubmodels`-Ordner:
+  - `slubmodels/pydantic_model.py`: Enthält das Pydantic-Modell
+  - `slubmodels/dataclass_model.py`: Enthält das Dataclass-Modell
+  - `slubmodels/__init__.py`: Macht das Paket importierbar
+- Vorteile:
+  - Version Control der Modelldateien möglich (Git)
+  - Einfache Referenz für Demonstrationszwecke
+  - Transparente Darstellung der generierten Datenstrukturen
+  - Direktes Experimentieren mit verschiedenen Schemata über den `--schema`-Parameter
+
+## Marimo Notebook (ausstehend)
+- Geplante Implementierung in `notebook.py`
+- Interaktives, zellbasiertes Interface zur Demonstration des kompletten Workflows
+- Geplante Komponenten:
+  1. Schema-Visualisierung: Zeigt die Struktur des LinkML-Schemas
+  2. Marc21-Datenimport: Lädt und zeigt Beispieldaten aus `samples/output.mrc`
+  3. Feldextraktion: Demonstriert die Extraktion von Feldern nach MARC21-Spezifikation
+  4. Modellgenerierung: Erstellt Modelle direkt aus dem Schema
+  5. Datenvalidierung: Zeigt Validierungsfunktionen und Fehlerbehandlung
+  6. Datenkonvertierung: Transformiert MARC21 zu Pydantic/Dataclass-Objekten
+  7. JSON-Ausgabe: Visualisiert die Daten im JSON-Format
+- Nutzt interaktive UI-Elemente von Marimo:
+  - Dropdowns für Datensatzauswahl
+  - Code-Highlighting für Schemas und Modelle
+  - Interaktive Diagramme für die Visualisierung der Datenstrukturen
+  - Vergleichsansichten zwischen MARC21 und JSON-Ausgabe
+
 ## Nächste Schritte
-1. Erstellung des LinkML Schemas
-2. Generierung der Modelle
-3. Entwicklung des Marimo Notebooks
-4. Dokumentation der Beispiele
+1. Entwicklung des Marimo Notebooks
+2. Erweitern der Dokumentation mit Anwendungsbeispielen
+3. Bereitstellung zusätzlicher Beispiele für komplexere MARC21-Felder

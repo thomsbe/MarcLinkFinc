@@ -15,14 +15,14 @@ version = 1
 disable_existing_loggers = false
 
 [root]
-level = "DEBUG"
+level = "INFO"
 handlers = ["console"]
 
 [handlers]
 [handlers.console]
 class = "logging.StreamHandler"
 formatter = "standard"
-level = "DEBUG"
+level = "INFO"
 stream = "ext://sys.stdout"
 
 [formatters]
@@ -44,17 +44,32 @@ def load_logging_config(config_file: Optional[Path] = None) -> dict:
     """
     Lädt die Logging-Konfiguration aus einer TOML-Datei oder verwendet die Standardkonfiguration.
     
+    Die Konfiguration wird in folgender Reihenfolge geladen:
+    1. Aus der explizit angegebenen Datei (wenn config_file gesetzt und die Datei existiert)
+    2. Aus der Standarddatei "logging.toml" im aktuellen Verzeichnis (wenn vorhanden)
+    3. Aus der eingebetteten Standardkonfiguration (DEFAULT_LOGGING_CONFIG)
+    
     Args:
         config_file: Optionaler Pfad zur TOML-Konfigurationsdatei.
     
     Returns:
         dict: Das geladene Konfigurations-Dictionary.
     """
+    # Wenn eine Konfigurationsdatei explizit angegeben wurde und existiert
     if config_file and config_file.exists():
         with open(config_file, 'rb') as f:
             config = tomllib.load(f)
     else:
-        config = tomllib.loads(DEFAULT_LOGGING_CONFIG)
+        # Wenn keine Datei angegeben wurde, suche nach "logging.toml" im aktuellen Verzeichnis
+        default_config_file = Path("logging.toml")
+        if default_config_file.exists():
+            with open(default_config_file, 'rb') as f:
+                config = tomllib.load(f)
+            log = logging.getLogger('help.slublogging')
+            log.info(f"Logging-Konfiguration aus {default_config_file} geladen")
+        else:
+            # Als letzten Ausweg die eingebaute Standardkonfiguration verwenden
+            config = tomllib.loads(DEFAULT_LOGGING_CONFIG)
     
     # Konvertiere die String-Log-Level in numerische Werte
     if 'root' in config and 'level' in config['root']:
@@ -67,12 +82,15 @@ def load_logging_config(config_file: Optional[Path] = None) -> dict:
     
     return config
 
-def getSlubLogger(name: str = __name__, config_file: Optional[Path] = None) -> logging.Logger:
+def getSlubLogger(name: str, config_file: Optional[Path] = None) -> logging.Logger:
     """
     Erstellt und konfiguriert einen Logger für SLUB-Anwendungen.
     
+    Verwende immer explizite, aussagekräftige Namen für Logger, NICHT __name__.
+    Empfohlen ist ein hierarchisches Benennungsschema wie 'appname.module.submodule'.
+    
     Args:
-        name: Name des Loggers (Standard: __name__)
+        name: Name des Loggers (expliziter Name, NICHT __name__)
         config_file: Optionaler Pfad zur TOML-Konfigurationsdatei
     
     Returns:

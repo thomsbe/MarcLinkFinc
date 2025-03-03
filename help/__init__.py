@@ -1,3 +1,1 @@
-from .logging import getSlubLogger
-
-__all__ = ["getSlubLogger"]
+__all__ = ["slublogging", "marc_utils"]

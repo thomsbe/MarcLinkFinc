@@ -1,28 +1,36 @@
-import logging
 import click
 from pymarc import MARCReader
 import json
 from pathlib import Path
+import sys
 
-# Importiere beide Finc-Modelle mit Aliase für eine eindeutige Unterscheidung
-from slubmodels.pydantic import Finc as PydanticFinc  # Pydantic-Modell zur Validierung und JSON-Ausgabe
-from slubmodels.dataclass import Finc as DataclassFinc  # Dataclass-Modell für alternative Zwecke
+# Lokale Importe
 from help.marc_utils import MarcUtils
 from help.slublogging import getSlubLogger
+from help.linkml_generator import generate_models_from_schema
 
-def process_marc_files(sourcefile, targetfile=None):
+def process_marc_files(sourcefile, targetfile=None, models=None):
     """
     Verarbeite Marc21-Dateien und erstelle Pydantic- und Dataclass-Objekte
     
     Args:
         sourcefile: Pfad zur MARC21-Quelldatei
         targetfile: Optional. Pfad zur JSON-Zieldatei
+        models: Optional. Dictionary mit den zu verwendenden Modellklassen
     
     Returns:
         Tuple aus (PydanticFinc-Liste, DataclassFinc-Liste)
     """
-    log = getSlubLogger('marc2finc')
+    log = getSlubLogger('process_marc_files')
     log.info(f"Verarbeite Datei: {sourcefile}")
+    
+    # Wenn keine Modelle übergeben wurden, verwende die Standardmodelle
+    if models is None:
+        log.info("Keine Modelle übergeben, generiere Modelle aus Schema")
+        models = generate_models_from_schema("schema/finc.yaml")
+    
+    PydanticFinc = models["PydanticFinc"]
+    DataclassFinc = models["DataclassFinc"]
     
     pydantics = []
     dataclasses = []
@@ -52,7 +60,7 @@ def process_marc_files(sourcefile, targetfile=None):
             topics = MarcUtils.extract_marc_subfields(record, *topic_specs)
             log.debug(f"Extrahierte {len(topics)} Themen aus dem Record")
 
-            # DEMO: recordtype ist Pflichtfeld und soll String sein! Kann man hier Zahl oder irgendwas eintragen und es erscheint ein ValidationError
+            # DEMO: recordtype ist Pflichtfeld und soll String sein!
             recordtype = "marc"
 
             # isbn = 020a:772z:773z
@@ -67,7 +75,7 @@ def process_marc_files(sourcefile, targetfile=None):
                 isbn = None
 
             # DEMO: ISBN die nicht auf den RegEx passt
-            isbn = "DIESDAS112"
+            # isbn = "DIESDAS112"
 
             try:
                 pydantic_record = PydanticFinc(
@@ -139,38 +147,39 @@ def process_marc_files(sourcefile, targetfile=None):
 @click.command()
 @click.option('-s', '--source', required=True, help='Pfad zur MARC21 Quelldatei')
 @click.option('-t', '--target', required=True, help='Pfad zur Ausgabedatei (ohne Erweiterung)')
-def main(source, target):
+@click.option('--schema', default='schema/finc.yaml', help='Pfad zum LinkML-Schema (default: schema/finc.yaml)')
+def main(source, target, schema):
     """Konvertiere MARC21 zu FINC JSON."""
     # Optional: Pfad zur Logging-Konfigurationsdatei angeben, falls gewünscht
     log = getSlubLogger('marc2finc')
     
     sourcefile = source
     targetfile = target
+    schema_file = schema
 
     log.info(f"Quelle: {sourcefile}")
     log.info(f"Ziel-Basis: {targetfile}")
-
-    process_marc_files(sourcefile, targetfile)
+    log.info(f"Schema: {schema_file}")
     
-    # Erstelle Dateinamen für die Ausgabe
-    output_path = Path(targetfile)
-    base_name = output_path.stem
-    base_dir = output_path.parent
-    pydantic_file = base_dir / f"{base_name}.pydantic.jsonl"
-    dataclass_file = base_dir / f"{base_name}.dataclass.jsonl"
-    
-    click.echo("Verarbeitung abgeschlossen!")
-    click.echo(f"Pydantic-Modelle wurden in {pydantic_file} gespeichert.")
-    click.echo(f"Dataclass-Modelle wurden in {dataclass_file} gespeichert.")
+    # Generiere die Modelle aus dem Schema
+    try:
+        models = generate_models_from_schema(schema_file)
+        process_marc_files(sourcefile, targetfile, models)
+        
+        # Erstelle Dateinamen für die Ausgabe
+        output_path = Path(targetfile)
+        base_name = output_path.stem
+        base_dir = output_path.parent
+        pydantic_file = base_dir / f"{base_name}.pydantic.jsonl"
+        dataclass_file = base_dir / f"{base_name}.dataclass.jsonl"
+        
+        click.echo("Verarbeitung abgeschlossen!")
+        click.echo(f"Pydantic-Modelle wurden in {pydantic_file} gespeichert.")
+        click.echo(f"Dataclass-Modelle wurden in {dataclass_file} gespeichert.")
+    except Exception as e:
+        log.error(f"Fehler bei der Verarbeitung: {e}")
+        click.echo(f"Fehler: {e}", err=True)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
-
-            
-            
-
-
-
-
-            
-

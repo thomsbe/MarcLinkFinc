@@ -117,4 +117,3 @@ Keine Angabe=leer, damit Anzahl Autoren=Anzahl Rollen""", json_schema_extra = { 
 # Model rebuild
 # see https://pydantic-docs.helpmanual.io/usage/models/#rebuilding-a-model
 Finc.model_rebuild()
-
