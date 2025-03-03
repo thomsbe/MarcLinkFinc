@@ -113,3 +113,22 @@ watchdog==6.0.0
 webcolors==24.11.1
 websockets==14.1
 wrapt==1.17.2
+
+# Core dependencies
+pymarc>=4.2.0
+pydantic>=2.5.0
+linkml>=1.6.0
+click>=8.1.7
+marimo>=0.5.0
+
+# Data processing & schema
+PyYAML>=6.0
+jsonschema>=4.20.0
+linkml-runtime>=1.6.0
+
+# Development tools
+pytest>=7.4.0
+black>=24.0.0
+
+# Logging
+tomlkit>=0.12.0
