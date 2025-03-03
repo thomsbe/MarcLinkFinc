@@ -70,7 +70,7 @@ Optionen:
 
 ### Marimo-Notebook
 
-Das interaktive Marimo-Notebook bietet eine visuelle Demonstration:
+Das interaktive Marimo-Notebook bietet eine visuelle Demonstration (eines Tages, jetzt ist es noch nicht fertig):
 
 ```bash
 marimo edit notebook.py

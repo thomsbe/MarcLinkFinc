@@ -29,6 +29,7 @@
  * [➞id](finc__id.md) - ID innerhalb eines Solr, zusammengesetzt aus einem Prefix mit der source_id und der record_id (teilweise encodiert)
  * [➞isbn](finc__isbn.md) - Internationale Standardbuchnummer (International Standard Book Number, ISBN)
  * [➞record_id](finc__record_id.md) - Lieferanten-Identifier (original ID aus der Quelle)
+ * [➞recordtype](finc__recordtype.md) - Typ der Quelle
  * [➞title](finc__title.md) - Titel im Titeldatensatz
  * [➞topic](finc__topic.md) - Schlagwörter
 
